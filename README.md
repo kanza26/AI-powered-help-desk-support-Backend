@@ -27,26 +27,34 @@ This project follows a **microservices architecture** where each service is inde
 
 ### Services:
 
-| Service         | Responsibility                                          |
-|----------------|---------------------------------------------------------|
-| **User Service**  | Handles authentication and user management            |
-| **Ticket Service**| Manages ticket creation and status tracking           |
-| **AI Service**    | Provides classification and solution suggestions      |
-| **Email Service** | Sends notifications to users                          |
+| Service           | Responsibility                                      |
+|-------------------|-----------------------------------------------------|
+| **User Service**  | Handles authentication and user management          |
+| **Ticket Service**| Manages ticket creation and status tracking         |
+| **AI Service**    | Provides classification and solution suggestions    |
+| **Email Service** | Sends notifications to users                        |
 
 ---
 
 ## ⚙️ Tech Stack
 
-| Category           | Technology                                      |
-|--------------------|-------------------------------------------------|
-| **Frontend**       | React                                           |
-| **Backend**        | Node.js (Express)                               |
-| **Containerization**| Docker, Docker Compose                         |
-| **CI/CD**          | GitHub Actions                                  |
-| **Web Server**     | Nginx                                           |
-| **Cloud Deployment**| AWS EC2                                         |
-| **Messaging**      | Redis                                           |
+| Category            | Technology          |
+|---------------------|---------------------|
+| **Frontend**        | React               |
+| **Backend**         | Node.js (Express)   |
+| **Containerization**| Docker, Docker Compose |
+| **CI/CD**           | GitHub Actions      |
+| **Web Server**      | Nginx               |
+| **Cloud Deployment**| AWS EC2             |
+| **Messaging**       | Redis               |
+
+---
+
+## 📋 Prerequisites
+
+---
+
+## 🔧 Environment Variables
 
 ---
 
@@ -70,11 +78,26 @@ docker-compose up --build
 
 ---
 
+## 🧪 Testing
+
+---
+
 ## 📁 Project Structure
+
+---
+
+## �API Documentation
+
+---
+
+## 🤝 Contributing
+
+---
+
+## 📄 License
 
 ---
 
 ## 👩‍💻 Author
 
 **Kanza Fatima**
-
