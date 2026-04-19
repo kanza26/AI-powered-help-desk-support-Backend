@@ -1,6 +1,6 @@
 // user-service/src/model/User.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // You'll create this
+const sequelize = require('../config/db.js'); // You'll create this
 
 const User = sequelize.define('User', {
   id: {
@@ -27,6 +27,10 @@ const User = sequelize.define('User', {
   role: {
     type: DataTypes.ENUM('admin', 'support operator', 'customer'),
     defaultValue: 'customer',
+  },
+  refresh_token: {
+  type: DataTypes.STRING,
+  allowNull: true,
   },
   created_at: {
     type: DataTypes.DATE,

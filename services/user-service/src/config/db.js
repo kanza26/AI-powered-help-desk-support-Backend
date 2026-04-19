@@ -3,11 +3,11 @@ const { Sequelize } = require('sequelize');
 
 // Sequelize requires the mysql2 package to communicate with MySQL
 const sequelize = new Sequelize(
-  process.env.DB_NAME || 'helpdesk_user_db',
-  process.env.DB_USER || 'helpdesk_user',
-  process.env.DB_PASSWORD || 'helpdesk_pass',
+  process.env.DB_NAME ,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD ,
   {
-    host: process.env.DB_HOST || 'mysql',
+    host: process.env.DB_HOST,
     dialect: 'mysql',
     port: 3306,
     logging: false,
