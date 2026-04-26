@@ -1,0 +1,44 @@
+const createTicket = (req, res) =>{
+    const {subject,complaint,priority,location,} = req.body;
+
+
+    if(!subject || !complaint || !location){
+        return res.status(400).json({success:false,message:'Subject, complaint and location are required'});
+    }
+    const userId = req.user.userId;
+
+    const newTicket = {
+        user_id: userId,
+        subject,
+        complaint,
+        priority: priority || 'medium',
+        location
+    };
+    ticketService.create(newTicket)
+    .then(ticket => {
+        res.status(201).json({success:true,message:'Ticket created successfully',data:ticket});
+    })
+    .catch(error => {
+        console.error('Error creating ticket:', error);
+        res.status(500).json({success:false,message:'Internal server error'});
+    });
+
+}
+
+const deleteTicket = (req, res) => {
+    const ticketId = req.params.id;
+    const userId = req.user.userId;
+    ticketService.delete(ticketId, userId)
+    .then(deleted => {
+        if(deleted){
+            res.status(200).json({success:true,message:'Ticket deleted successfully'});
+        } else {
+            res.status(404).json({success:false,message:'Ticket not found or unauthorized'});
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting ticket:', error);
+        res.status(500).json({success:false,message:'Internal server error'});
+    });
+}
+

@@ -74,5 +74,4 @@ const Ticket = sequelize.define('Ticket', {
 });
 
 
-
 module.exports = Ticket;

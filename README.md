@@ -1,6 +1,7 @@
 # 🛠️ Help Desk Support System
 
 A production-ready Help Desk Support system built to demonstrate **CI/CD pipelines**, **containerization**, **microservices architecture**, and **cloud deployment**.
+**Note:** This is my self project to practice my containerization and CI/CD skills.
 
 **Target Audience:** University Staff (1000-2000 users)
 
