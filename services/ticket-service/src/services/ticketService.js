@@ -27,4 +27,15 @@ class ticketService {
             throw error;
         }
     }
+
+    async getAll() {
+        try {
+            const tickets = await ticketModel.findAll();
+            return tickets;
+        } catch (error) {
+            console.error('Error fetching tickets:', error);
+            throw error;
+        }
+    }
+
 }
