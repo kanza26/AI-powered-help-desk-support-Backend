@@ -1,5 +1,6 @@
+const ticketService = require('../services/ticketService');
 const createTicket = (req, res) =>{
-    const {subject,complaint,priority,location,} = req.body;
+    const {subject,complaint,priority,location} = req.body;
 
 
     if(!subject || !complaint || !location){
@@ -42,3 +43,14 @@ const deleteTicket = (req, res) => {
     });
 }
 
+const getAllTickets = (req, res) => {
+    // Implementation for fetching all tickets
+    ticketService.getAll()
+    .then(tickets => {
+        res.status(200).json({success:true,message:'Fetched all tickets',data:tickets});
+    })
+    .catch(error => {
+        console.error('Error fetching tickets:', error);
+        res.status(500).json({success:false,message:'Internal server error'});
+    });
+}

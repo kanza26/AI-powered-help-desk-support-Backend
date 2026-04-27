@@ -1,0 +1,17 @@
+{
+  "name": "ai-service",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "voicetest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mic": "^2.1.2",
+    "microsoft-cognitiveservices-speech-sdk": "^1.49.0"
+  }
+}
