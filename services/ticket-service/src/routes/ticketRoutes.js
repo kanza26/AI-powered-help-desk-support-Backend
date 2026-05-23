@@ -10,6 +10,8 @@ router.get('/', ticketController.getAllTickets);
 // Authenticated routes
 router.post('/', authMiddleware, validateCreateTicket, ticketController.createTicket);
 router.delete('/:id', authMiddleware, ticketController.deleteTicket);
+router.put('/:id', authMiddleware, ticketController.updateTicketStatus);
+
 
 module.exports = router;
 

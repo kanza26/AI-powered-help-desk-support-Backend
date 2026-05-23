@@ -38,4 +38,24 @@ class ticketService {
         }
     }
 
+    async updateStatus(ticketId, userId, status) {
+        try {
+            const [updatedCount] = await ticketModel.update(
+                { status },
+                {
+                    where: {
+                        id: ticketId,
+                        user_id: userId,
+                    },
+                }
+            );
+            return updatedCount > 0;
+        } catch (error) {
+            console.error('Error updating ticket status:', error);
+            throw error;
+        }
+    }
+
 }
+
+module.exports = new ticketService();
