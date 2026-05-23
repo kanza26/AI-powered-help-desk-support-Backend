@@ -20,7 +20,7 @@ const upload = multer({
   },
 });
 
-function recognizeSpeechFromBuffer(buffer, language = 'en-US') {
+function recognizeSpeechFromBuffer(buffer, sourceLanguage = 'ur-IN') {
   return new Promise((resolve, reject) => {
     const speechKey = process.env.SPEECH_KEY;
     const speechRegion = process.env.SPEECH_REGION;
@@ -29,41 +29,66 @@ function recognizeSpeechFromBuffer(buffer, language = 'en-US') {
       return reject(new Error('SPEECH_KEY and SPEECH_REGION must be set in environment variables.'));
     }
 
-    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(speechKey, speechRegion);
-    speechConfig.speechRecognitionLanguage = language;
+    try {
+      // Initialize translation config
+      const translationConfig = SpeechSDK.SpeechTranslationConfig.fromSubscription(speechKey, speechRegion);
+      
+      // Set source language (must be supported: hi-IN, es-ES, fr-FR, etc.)
+      translationConfig.speechRecognitionLanguage = sourceLanguage; 
+      translationConfig.addTargetLanguage('en'); 
 
-    const pushStream = SpeechSDK.AudioInputStream.createPushStream();
-    pushStream.write(buffer);
-    pushStream.close();
+      // Use push stream with proper WAV audio format (16kHz, 16-bit, mono)
+      const audioFormat = SpeechSDK.AudioStreamFormat.getWaveFormatPCM(16000, 16, 1);
+      const pushStream = SpeechSDK.AudioInputStream.createPushStream(audioFormat);
+      pushStream.write(buffer);
+      pushStream.close();
 
-    const audioConfig = SpeechSDK.AudioConfig.fromStreamInput(pushStream);
-    const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+      const audioConfig = SpeechSDK.AudioConfig.fromStreamInput(pushStream);
+      const recognizer = new SpeechSDK.TranslationRecognizer(translationConfig, audioConfig);
 
-    recognizer.recognizeOnceAsync(
-      (result) => {
-        recognizer.close();
+      console.log(`[Speech Translation] Starting translation from ${sourceLanguage} to English, buffer size: ${buffer.length} bytes`);
 
-        switch (result.reason) {
-          case SpeechSDK.ResultReason.RecognizedSpeech:
-            resolve({ text: result.text, language });
-            break;
-          case SpeechSDK.ResultReason.NoMatch:
-            reject(new Error('No speech could be recognized.'));
-            break;
-          case SpeechSDK.ResultReason.Canceled: {
-            const cancellation = SpeechSDK.CancellationDetails.fromResult(result);
-            reject(new Error(`Recognition canceled: ${cancellation.errorDetails}`));
-            break;
+      recognizer.recognizeOnceAsync(
+        (result) => {
+          recognizer.close();
+
+          switch (result.reason) {
+            case SpeechSDK.ResultReason.TranslatedSpeech:
+              const originalText = result.text;
+              const translatedText = result.translations.get('en');
+              console.log(`[Speech Translation] Original (${sourceLanguage}): "${originalText}"`);
+              console.log(`[Speech Translation] Translated (English): "${translatedText}"`);
+              resolve({ 
+                originalText,
+                translatedText,
+                sourceLanguage,
+                targetLanguage: 'en'
+              });
+              break;
+            case SpeechSDK.ResultReason.NoMatch:
+              console.warn('[Speech Translation] No speech could be recognized');
+              reject(new Error('No speech could be recognized. Speak clearly in Hindi.'));
+              break;
+            case SpeechSDK.ResultReason.Canceled: {
+              const cancellation = SpeechSDK.CancellationDetails.fromResult(result);
+              console.error(`[Speech Translation] Canceled: ${cancellation.errorDetails}`);
+              reject(new Error(`Recognition canceled: ${cancellation.errorDetails}`));
+              break;
+            }
+            default:
+              reject(new Error('Speech translation failed.'));
           }
-          default:
-            reject(new Error('Speech recognition failed.'));
+        },
+        (err) => {
+          recognizer.close();
+          console.error('[Speech Translation] Error:', err);
+          reject(err);
         }
-      },
-      (err) => {
-        recognizer.close();
-        reject(err);
-      }
-    );
+      );
+    } catch (error) {
+      console.error('[Speech Translation] Setup error:', error);
+      reject(error);
+    }
   });
 }
 
@@ -71,25 +96,27 @@ app.get('/', (req, res) => {
   res.send('AI Service is running. Use POST /api/speech-to-english with a WAV audio file.');
 });
 
-
 app.post('/api/speech-to-english', upload.single('audio'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No audio file uploaded. Use form field name "audio".' });
     }
 
-    const targetLanguage = 'en-US';
     const { buffer, originalname } = req.file;
-    const result = await recognizeSpeechFromBuffer(buffer, targetLanguage);
+    
+    // Use Urdu (ur-PK) which is supported by Azure Speech Translation
+    const result = await recognizeSpeechFromBuffer(buffer, 'ur-IN'); 
 
     res.json({
       fileName: originalname,
-      language: targetLanguage,
-      text: result.text,
+      sourceLanguage: result.sourceLanguage,
+      original: result.originalText,
+      english: result.translatedText,
+      targetLanguage: result.targetLanguage
     });
   } catch (error) {
-    console.error('Speech recognition error:', error);
-    res.status(500).json({ error: error.message || 'Speech recognition failed.' });
+    console.error('Speech translation error:', error);
+    res.status(500).json({ error: error.message || 'Speech translation failed.' });
   }
 });
 
@@ -101,4 +128,5 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`AI Service listening on port ${port}`);
 });
+
 

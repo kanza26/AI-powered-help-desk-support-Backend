@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const {sequelize } = require('../config/db.js');
+const TICKET_STATUS = require('../../../../constants/ticketStatus');
 
 const Ticket = sequelize.define('Ticket', {
   id: {
@@ -38,8 +39,8 @@ const Ticket = sequelize.define('Ticket', {
     defaultValue: 'medium',
   },
   status: {
-    type: DataTypes.ENUM('open', 'in_progress', 'resolved', 'closed'),
-    defaultValue: 'open',
+    type: DataTypes.ENUM(...TICKET_STATUS.strings),
+    defaultValue: TICKET_STATUS.names[TICKET_STATUS.OPEN],
   },
   datetime: {
     type: DataTypes.DATE,
