@@ -1,0 +1,112 @@
+services:
+  # Single MySQL container with multiple databases
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - my_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+  
+  redis:
+    image: redis:7-alpine
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - my_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    ports:
+      - "1025:1025"   # SMTP port
+      - "8025:8025"   # Web UI to view emails
+    networks:
+      - my_network
+
+  # Ticket Service (uses ticket_db)
+  ticket-service:
+    build: ./services/ticket-service
+    container_name: ticket-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ticket_user
+      DB_PASSWORD: ticket_pass
+      DB_NAME: ticket_db
+      PORT: 3002                   # ← Container 3002 pe listen karega
+    ports:
+      - "3002:3002"                 # ← Host 3002 -> Container 3002
+    networks:
+      - my_network
+
+  # User Service (uses user_db)
+  user-service:
+    build: ./services/user-service
+    container_name: user-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: user_user
+      DB_PASSWORD: user_pass
+      DB_NAME: user_db
+      PORT: 3001                   # ← Container 3001 pe listen karega
+      JWT_ACCESS_SECRET: lasagne
+      JWT_REFRESH_SECRET: pasta
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3001:3001"                 # ← Host 3001 -> Container 3001
+    networks:
+      - my_network
+  email-service:
+    build: ./services/email-service
+    container_name: email-service
+    depends_on:
+      redis:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SMTP_HOST: mailhog    # ← Use service name
+      SMTP_PORT: 1025
+      SMTP_USER: ""         # No auth needed
+      SMTP_PASS: ""         # No auth needed
+      FROM_EMAIL: noreply@helpdesk.com
+    networks:
+      - my_network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  my_network:
+    driver: bridge
