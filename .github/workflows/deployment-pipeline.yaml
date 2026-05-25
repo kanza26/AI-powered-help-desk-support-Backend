@@ -45,3 +45,6 @@ jobs:
             docker compose pull
             docker compose up -d
             echo "All services deployed successfully!"  
+
+
+            
