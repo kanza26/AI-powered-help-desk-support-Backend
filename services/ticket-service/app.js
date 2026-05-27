@@ -4,6 +4,8 @@ const { sequelize, testConnection, syncModels } = require('./src/config/db');
 
 const app = express();
 app.use(express.json());
+app.routes = require('./src/routes/ticketRoutes');
+app.use('/tickets', app.routes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

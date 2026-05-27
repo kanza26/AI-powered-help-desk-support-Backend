@@ -12,7 +12,8 @@ class JwtService {
     const payload = {
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
+      fullname: user.full_name
     };
 
     const accessToken = jwt.sign(payload, this.accessTokenSecret, {
