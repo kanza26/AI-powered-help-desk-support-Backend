@@ -1,4 +1,4 @@
-export const validateCreateTicket = (req, res, next) => {
+const validateCreateTicket = (req, res, next) => {
     if (!req.body.subject) {
         return res.status(400).json({ success: false, message: 'Subject is required' });
     }
@@ -14,3 +14,5 @@ export const validateCreateTicket = (req, res, next) => {
     next();
 
 }
+
+module.exports = validateCreateTicket;

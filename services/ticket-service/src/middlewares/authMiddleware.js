@@ -1,7 +1,6 @@
 const jwtService = require('../services/jwtService');
 
-
-export const authMiddleware = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
         return res.status(401).json({ success: false, message: 'Authorization header missing' });
@@ -19,3 +18,5 @@ export const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
 };
+
+module.exports = authMiddleware;
