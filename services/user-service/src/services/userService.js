@@ -106,7 +106,8 @@ class UserService {
     try {
       const users = await User.findAll({
         attributes: { exclude: ['password_hash', 'refresh_token'] },
-        order: [['created_at', 'DESC']]
+        order: [['created_at', 'DESC']],
+        limit: limit
       });
       return users;
     } catch (error) {
