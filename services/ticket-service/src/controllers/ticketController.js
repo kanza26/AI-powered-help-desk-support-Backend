@@ -1,5 +1,5 @@
 const ticketService = require('../services/ticketService');
-const TICKET_STATUS = require('../../../../constants/ticketStatus');
+const TICKET_STATUS = require('../constants/ticketStatus');
 
 const createTicket = (req, res) => {
   const { subject, complaint, priority, location } = req.body;

@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const {sequelize } = require('../config/db.js');
-const TICKET_STATUS = require('../../../../constants/ticketStatus');
+const TICKET_STATUS = require('../constants/ticketStatus');
 
 //model for ticket
 const Ticket = sequelize.define('Ticket', {
