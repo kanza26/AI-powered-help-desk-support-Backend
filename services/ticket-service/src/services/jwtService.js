@@ -1,12 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 class JwtService {
-  constructor() {
-    this.accessTokenSecret = process.env.JWT_ACCESS_SECRET;
-    this.refreshTokenSecret = process.env.JWT_REFRESH_SECRET;
-    this.accessTokenExpiry = process.env.JWT_ACCESS_EXPIRY;
-    this.refreshTokenExpiry = process.env.JWT_REFRESH_EXPIRY;
-  }
+  // ✅ Don't capture env vars in constructor — read them at call-time
+  get accessTokenSecret() { return process.env.JWT_ACCESS_SECRET; }
+  get refreshTokenSecret() { return process.env.JWT_REFRESH_SECRET; }
+  get accessTokenExpiry() { return process.env.JWT_ACCESS_EXPIRY; }
+  get refreshTokenExpiry() { return process.env.JWT_REFRESH_EXPIRY; }
 
   generateTokens(user) {
     const payload = {
@@ -23,33 +22,28 @@ class JwtService {
       expiresIn: this.refreshTokenExpiry
     });
 
-    return {
-      accessToken,
-      refreshToken
-    };
+    return { accessToken, refreshToken };
   }
 
   verifyAccessToken(token) {
     try {
-      const decoded = jwt.verify(token, this.accessTokenSecret);
-      return decoded;
+      return jwt.verify(token, this.accessTokenSecret);
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        throw new Error('Access token expired');
+        throw new Error('Access token expired'); // ✅ re-throw expiry so caller can refresh
       }
-      throw new Error('Invalid access token');
+      return null; // ✅ return null for invalid tokens instead of throwing
     }
   }
 
   verifyRefreshToken(token) {
     try {
-      const decoded = jwt.verify(token, this.refreshTokenSecret);
-      return decoded;
+      return jwt.verify(token, this.refreshTokenSecret);
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         throw new Error('Refresh token expired');
       }
-      throw new Error('Invalid refresh token');
+      return null; // ✅ same fix for refresh token
     }
   }
 
@@ -72,7 +66,7 @@ class JwtService {
   isTokenExpired(token) {
     const expiry = this.getTokenExpiry(token);
     if (!expiry) return true;
-    return Date.now() >= expiry.getTime();
+    return Date.now() > expiry.getTime(); // ✅ strict > instead of >=
   }
 }
 
