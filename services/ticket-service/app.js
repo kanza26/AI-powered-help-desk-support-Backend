@@ -1,11 +1,11 @@
 // ticket-service/app.js
 const express = require('express');
 const { sequelize, testConnection, syncModels } = require('./src/config/db');
-
+const ticketRoutes = require('./src/routes/ticketRoutes'); // ✅ plain variable
 const app = express();
 app.use(express.json());
-app.routes = require('./src/routes/ticketRoutes');
-app.use('/tickets', app.routes);
+
+app.use('/tickets', ticketRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
